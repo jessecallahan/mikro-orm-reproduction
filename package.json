@@ -2,7 +2,6 @@
 	"name": "stytch-prototype",
 	"version": "0.1.0",
 	"private": true,
-	"type": "module",
 	"scripts": {
 		"build": "next build",
 		"check": "biome check .",
@@ -14,6 +13,10 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
+		"@mikro-orm/cli": "^6.6.7",
+		"@mikro-orm/core": "^6.6.7",
+		"@mikro-orm/postgresql": "^6.6.7",
+		"@mikro-orm/seeder": "^6.6.7",
 		"@t3-oss/env-nextjs": "^0.12.0",
 		"@tanstack/react-query": "^5.69.0",
 		"@trpc/client": "^11.0.0",
@@ -34,10 +37,22 @@
 		"@types/react-dom": "^19.0.0",
 		"postcss": "^8.5.3",
 		"tailwindcss": "^4.0.15",
+		"ts-node": "^10.9.2",
 		"typescript": "^5.8.2"
 	},
 	"ct3aMetadata": {
 		"initVersion": "7.40.0"
 	},
-	"packageManager": "pnpm@10.30.2"
+	"packageManager": "pnpm@10.30.2",
+	"mikro-orm": {
+		"configPaths": [
+			"./src/db/mikro-orm.config.ts"
+		]
+	},
+	"exports": {
+		"./entities": {
+			"types": "./src/db/entities/index.d.ts",
+			"default": "./src/db/entities/index.js"
+		}
+	}
 }

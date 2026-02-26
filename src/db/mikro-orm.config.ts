@@ -1,20 +1,22 @@
 import {defineConfig} from '@mikro-orm/postgresql';
-import process from "node:process";
-import {User} from "~/db/admin/user"; // or any other driver package
+import {User} from "../db/entities";
+import {SeedManager} from "@mikro-orm/seeder";
 
-export default [
-    defineConfig({
-        entities: [
-            User
-        ],
+
+export default defineConfig({
+        entities: [User],
+        extensions: [SeedManager],
         seeder: {
-            // look in subdirectories so that you can run individual seeders
-            glob: '**/!(*.d).{js,ts}',
+            path: './src/db/seeders', // path to the folder with seeders
+            pathTs: undefined, // path to the folder with TS seeders (if used, you should put path to compiled files in `path`)
+            defaultSeeder: 'DatabaseSeeder', // default seeder class name
+            glob: '!(*.d).{js,ts}', // how to match seeder files (all .js and .ts files, but not .d.ts)
+            emit: 'ts', // seeder generation mode
+            fileName: (className: string) => className, // seeder file naming convention
         },
-        dbName: 'stytch-prototype',
+        dbName: 'postgres',
         user: 'stytch',
-        password: process.env.POSTGRES_PASSWORD,
+        password: 'admin123',
         host: 'localhost',
         port: 5435,
-    })
-];
+    });

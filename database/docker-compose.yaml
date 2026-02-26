@@ -1,0 +1,14 @@
+name: stytch-prototype
+services:
+  # https://hub.docker.com/_/postgres/
+  postgres:
+    # lock to latest version available on DigitalOcean; currently 17
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_USER: stytch
+      POSTGRES_PASSWORD: admin123
+    volumes:
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5435:5432"
