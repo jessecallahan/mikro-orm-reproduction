@@ -11,6 +11,7 @@ import {useEffect, useState} from "react";
 import {hasMatchingField} from "~/functions/has-matching-field";
 import {Admin} from "~/app/_components/admin";
 import {filterPermissionsByField} from "~/functions/filter-permissions-by-field";
+import {Orgs} from "~/app/_components/orgs";
 
 export const SessionInfo = () => {
     const {session, isInitialized} = useStytchMemberSession();
@@ -26,7 +27,10 @@ export const SessionInfo = () => {
 
     const [showAdminList, setShowAdminList] = useState(false);
     const hasAdminAccess = hasMatchingField(permissions, 'emo.admin');
-    const filteredPermissions = filterPermissionsByField(permissions, 'emo.admin');
+    const filteredPermissionsByAdmin = filterPermissionsByField(permissions, 'emo.admin');
+
+    const [showOrgs, setShowOrgs] = useState(false);
+    const hasOrganizationAccess = hasMatchingField(permissions, 'emo.admin.organizations');
 
     if (!isInitialized) {
         return <p>Loading...</p>;
@@ -44,13 +48,23 @@ export const SessionInfo = () => {
                     <button onClick={() => setShowAdminList(true)}>Admin button</button>
                     :
                     <>
-                        <Admin permissions={filteredPermissions} />
+                        <Admin permissions={filteredPermissionsByAdmin}/>
                         <button onClick={() => setShowAdminList(false)}>Close Admin list</button>
                     </>
                 : null
             }</div>
+            <button disabled={!hasOrganizationAccess} onClick={() => setShowOrgs(true)}>Organizations button
+            </button>
+            <div>{showOrgs ?
+                <>
+                    <Orgs />
+                    <button onClick={() => setShowOrgs(false)}>Close Orgs list</button>
+                </>
+                : null
+            }</div>
             <p>
-                <button>Organizations button</button>
+
+
             </p>
         </div>
     ) : (
