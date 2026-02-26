@@ -1,6 +1,6 @@
-# Create T3 App
+# Stytch Prototype
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+[EMORP-1639 Prototype Stytch - eMO Next Integration](https://youtrack.thinkfellow.com/youtrack/issue/EMORP-1639) 
 
 ## Run
 
