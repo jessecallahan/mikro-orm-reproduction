@@ -17,6 +17,7 @@
 		"@mikro-orm/core": "^6.6.7",
 		"@mikro-orm/postgresql": "^6.6.7",
 		"@mikro-orm/seeder": "^6.6.7",
+		"@stytch/nextjs": "^22.0.2",
 		"@t3-oss/env-nextjs": "^0.12.0",
 		"@tanstack/react-query": "^5.69.0",
 		"@trpc/client": "^11.0.0",

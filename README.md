@@ -4,6 +4,6 @@
 
 ## Run
 
-1. docker compose up 
+1. cd database, docker compose up 
 2. mikro-orm-esm schema:fresh --run
 3. mikro-orm-esm seeder:run

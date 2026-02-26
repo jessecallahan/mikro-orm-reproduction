@@ -20,6 +20,9 @@ importers:
       '@mikro-orm/seeder':
         specifier: ^6.6.7
         version: 6.6.7(@mikro-orm/core@6.6.7)
+      '@stytch/nextjs':
+        specifier: ^22.0.2
+        version: 22.0.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@t3-oss/env-nextjs':
         specifier: ^0.12.0
         version: 0.12.0(typescript@5.9.3)(zod@3.25.76)
@@ -430,6 +433,12 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@stytch/nextjs@22.0.2':
+    resolution: {integrity: sha512-QdzRT26e261OyQrBEA5d1R+PEOTT3h4Ns41u7V/ibG7necDkZa5kWfckpmjdOdkovCWVjJ/9gMH6BmD9D4gO8g==}
+    peerDependencies:
+      react: '>= 17.0.2'
+      react-dom: '>= 17.0.2'
 
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
@@ -1537,6 +1546,11 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
+
+  '@stytch/nextjs@22.0.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+    dependencies:
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
 
   '@swc/helpers@0.5.15':
     dependencies:

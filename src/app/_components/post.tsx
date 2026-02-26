@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { api } from "~/trpc/react";
+import {SessionInfo} from "~/app/_components/session-info";
 
 export function LatestPost() {
 	const [latestPost] = api.post.getLatest.useSuspenseQuery();
@@ -45,6 +46,7 @@ export function LatestPost() {
 					{createPost.isPending ? "Submitting..." : "Submit"}
 				</button>
 			</form>
+			<SessionInfo/>
 		</div>
 	);
 }

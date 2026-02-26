@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import Stytch from "~/providers/stytch-provider";
 
 export const metadata: Metadata = {
 	title: "Create T3 App",
@@ -22,7 +23,11 @@ export default function RootLayout({
 	return (
 		<html className={`${geist.variable}`} lang="en">
 			<body>
-				<TRPCReactProvider>{children}</TRPCReactProvider>
+			    <Stytch>
+				    <TRPCReactProvider>
+						{children}
+				    </TRPCReactProvider>
+			    </Stytch>
 			</body>
 		</html>
 	);
