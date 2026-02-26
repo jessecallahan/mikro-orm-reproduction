@@ -11,7 +11,7 @@ export default function Login() {
     // Route users to your app once they have fully authenticated (either immediately or upon completing the remainder of the auth flow, like MFA)
     useEffect(() => {
         if (session && isInitialized) {
-            router.replace("/");
+            router.replace("/home");
         }
     }, [session, isInitialized, router]);
 
