@@ -6,10 +6,18 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
+import {initTRPC, TRPCError} from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import {getORM} from "~/db";
+import stytch = require("stytch");
+import {cookies} from "next/headers";
+
+
+const client = new stytch.B2BClient({
+	project_id: process.env.PROJECT_ID,
+	secret: process.env.SECRET,
+});
 
 /**
  * 1. CONTEXT
@@ -24,12 +32,11 @@ import {getORM} from "~/db";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-	// const session = await auth();
 	const db = await getORM();
 
 	return {
-		// session,
 		db: db.em.fork(),
+		client: client,
 		...opts,
 	};
 };
@@ -116,20 +123,78 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  *
  * @see https://trpc.io/docs/procedures
  */
-// export const protectedProcedure = t.procedure
-// 	.use(timingMiddleware)
-// 	.use(async ({ ctx, next }) => {
-// 		if (!ctx.session?.user) {
-// 			throw new TRPCError({ code: 'UNAUTHORIZED' });
-// 		}
-// 		return next({
-// 			ctx: {
-// 				// infers the `session` as non-nullable
-// 				session: { ...ctx.session, user: ctx.session.user },
-// 				temporal: new Client({
-// 					connection: await getConnection(),
-// 					namespace: env.TEMPORAL_NAMESPACE,
-// 				}),
-// 			},
-// 		});
-// 	});
+
+const authenticateStytchSession = async ({ctx, next}) => {
+	const cookieStore = await cookies();
+	const session_jwt = cookieStore.get('stytch_session_jwt');
+
+	if (!session_jwt?.value) {
+		throw new TRPCError({ code: 'UNAUTHORIZED' });
+	}
+
+	return client.sessions.authenticateJwt({ session_jwt: session_jwt?.value })
+		.then(session => {
+			// console.log('session', session);
+			ctx.session = session;
+			return next({
+				ctx: {
+					// infers the `session` as non-nullable
+					session: { ...ctx.session},
+					member: ctx.session.member_session
+					// temporal: new Client({
+					// 	connection: await getConnection(),
+					// 	namespace: env.TEMPORAL_NAMESPACE,
+					// }),
+				},
+			});
+		})
+};
+
+export const protectedProcedure = t.procedure
+	.use(timingMiddleware)
+	.use(authenticateStytchSession)
+
+// input: condition, resource, actions
+// loop over actions if one is authorized stop loop and return context with condition as true
+// otherwise return context with condition false
+export const isAuthorizedForCondition = (condition: string, resource_id: string, actions: string[] ) =>
+	t.middleware(async ({ ctx, next }) => {
+		let isConditionTrue = false;
+		const cookieStore = await cookies();
+		const session_jwt = cookieStore.get('stytch_session_jwt');
+
+		if (!session_jwt?.value) {
+			throw new TRPCError({ code: 'UNAUTHORIZED' });
+		}
+
+		for (const action of actions) {
+			try {
+				// Await the asynchronous function call
+				const result = await client.sessions.authenticate({
+					session_jwt: session_jwt?.value,
+					authorization_check: {
+						organization_id: ctx.member.organization_id,
+						resource_id: resource_id,
+						action: action
+					}
+				});
+
+				console.log('Function successful:', result);
+				isConditionTrue = true;
+				break;
+			} catch (error) {
+				console.error('Function failed for action:', action, error);
+			}
+		}
+
+		return next({
+			ctx: {
+				...ctx,
+				[condition]: isConditionTrue,
+			},
+		})
+	});
+
+
+
+

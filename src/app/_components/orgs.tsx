@@ -7,7 +7,7 @@ export const Orgs = () => {
     console.log(organizations);
     return (
         <div>
-            yo
+            orgs list
         </div>
     );
 };
