@@ -1,10 +1,13 @@
 import { EntityManager } from '@mikro-orm/postgresql';
 import { Seeder } from '@mikro-orm/seeder';
-import {User} from "../entities/admin/user";
+import {OrganizationMembershipSeeder} from "~/db/seeders/organization-membership-seeder";
 
 export class DatabaseSeeder extends Seeder {
-    async run(em: EntityManager): Promise<void> {
-        const user = new User('nameish');
-        em.persist(user);
+    run(em: EntityManager): Promise<void> {
+        return this.call(em, [
+
+            OrganizationMembershipSeeder,
+
+        ]);
     }
 }
