@@ -12,7 +12,6 @@ import {hasMatchingField} from "~/functions/has-matching-field";
 import {Admin} from "~/app/_components/admin";
 import {filterPermissionsByField} from "~/functions/filter-permissions-by-field";
 import {Orgs} from "~/app/_components/orgs";
-import {api} from "~/trpc/react";
 
 export const SessionInfo = () => {
     const {session, isInitialized} = useStytchMemberSession();
@@ -26,6 +25,7 @@ export const SessionInfo = () => {
         stytch.rbac.allPermissions().then((perms) => setPermissions(perms));
     }, [stytch]);
 
+    console.log(Object.entries(permissions));
     const [showAdminList, setShowAdminList] = useState(false);
     const hasAdminAccess = hasMatchingField(permissions, 'emo.admin');
     const filteredPermissionsByAdmin = filterPermissionsByField(permissions, 'emo.admin');
@@ -63,10 +63,16 @@ export const SessionInfo = () => {
                 </>
                 : null
             }</div>
-            <p>
+            {/*<br />*/}
+            {/*<div>*/}
+            {/*    <p>Resource and Access Permissions:</p>*/}
+            {/*    {Object.entries(permissions).map(([key, value]) => (*/}
+            {/*        <li key={key}>*/}
+            {/*            {key}: {Object.entries(value).join(', ')}*/}
+            {/*        </li>*/}
+            {/*    ))}*/}
 
-
-            </p>
+            {/*</div>*/}
         </div>
     ) : (
         <p>No active session</p>

@@ -36,7 +36,7 @@ const OrganizationSeedData = [
         Status.Inactive,
     ),
     new Organization(
-        'honda-intra-company-sales',
+        'honda-trading-raw-materials',
         OrganizationNameSeedData.HT,
         OrganizationType.HondaTrading,
         new DateRange(new Date('9/12/2006')),

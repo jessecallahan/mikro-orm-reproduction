@@ -13,7 +13,10 @@ let orm: MikroORM | null = null;
  */
 export async function getORM(options?: Options): Promise<MikroORM> {
     if (!orm) {
-        orm = await MikroORM.init(config);
+        orm = await MikroORM.init({
+            ...config,
+            filters: {organizationFilter: {cond: args => ({organizationSlug: { $eq: args.organizationSlug }})}}
+        });
     }
 
     return orm;
@@ -21,4 +24,4 @@ export async function getORM(options?: Options): Promise<MikroORM> {
 
 // do we want to expose the core system types?
 // export * from '@mikro-orm/core';
-export { type MikroORM, wrap };
+export {type MikroORM, wrap};
