@@ -15,10 +15,6 @@ import {Orgs} from "~/app/_components/orgs";
 import {api} from "~/trpc/react";
 
 export const SessionInfo = () => {
-    // use to test protected route when user logged out
-    const organizations = api.organization.getAll.useQuery();
-    console.log(organizations);
-
     const {session, isInitialized} = useStytchMemberSession();
     const {member} = useStytchMember();
     const {organization} = useStytchOrganization();
@@ -34,14 +30,12 @@ export const SessionInfo = () => {
     const hasAdminAccess = hasMatchingField(permissions, 'emo.admin');
     const filteredPermissionsByAdmin = filterPermissionsByField(permissions, 'emo.admin');
 
-    console.log(filteredPermissionsByAdmin);
     const [showOrgs, setShowOrgs] = useState(false);
     const hasOrganizationAccess = hasMatchingField(permissions, 'emo.admin.organizations');
 
     if (!isInitialized) {
         return <p>Loading...</p>;
     }
-
 
     return session ? (
         <div>
@@ -64,7 +58,7 @@ export const SessionInfo = () => {
             </button>
             <div>{showOrgs ?
                 <>
-                    <Orgs />
+                    <Orgs organization={organization}/>
                     <button onClick={() => setShowOrgs(false)}>Close Orgs list</button>
                 </>
                 : null

@@ -9,6 +9,7 @@ import { Base } from '../base';
 import {OrganizationType} from "~/db/enums/organization-type";
 import {DateRange} from "~/db/entities/date-range";
 import {Status} from "~/db/enums/status";
+import {Filter} from "@mikro-orm/core";
 
 /**
  * These are the organizations (business units) used to manage users and supply chain partner locations
@@ -17,6 +18,15 @@ import {Status} from "~/db/enums/status";
  * https://docs.google.com/spreadsheets/d/1vUM05YjC0aAMbJCFo0qH3xMgzEMrYReRCGFY1GFEWxY/edit?gid=797872787#gid=797872787
  **/
 @Entity()
+@Filter({ name: 'organizationFilter', cond: async (args, type, em: EntityManager) => {
+        if (type !== 'read') {
+            return {}; // do not apply when updating
+        }
+
+        return {
+            organizationSlug: { $eq: args.organizationSlug } ,
+        };
+    } })
 export class Organization extends Base {
     @Property()
     organizationSlug: string;
