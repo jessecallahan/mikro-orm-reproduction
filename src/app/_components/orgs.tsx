@@ -3,10 +3,10 @@ import { api } from '~/trpc/react';
 import {OrganizationType} from "~/db/enums/organization-type";
 import {Status} from "~/db/enums/status";
 
-export const Orgs = ({organization}) => {
+export const Orgs = () => {
     // use to test protected route when user logged out
     // const organizations = api.organization.getAll.useQuery({session: session, member: member, organization: organization});
-    const {data, isLoading} = api.organization.getAll.useQuery(organization?.organization_slug ?? '');
+    const {data, isLoading} = api.organization.getAll.useQuery();
     const update = api.organization.update.useMutation({
         onSuccess: () => {
             // Invalidate queries to refresh data

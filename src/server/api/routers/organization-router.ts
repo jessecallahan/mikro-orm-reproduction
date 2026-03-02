@@ -1,51 +1,43 @@
 
 import { z } from 'zod';
-import {createTRPCRouter, isAuthorizedForCondition, protectedProcedure} from '../../api/trpc';
+import {createTRPCRouter, protectedProcedure} from '../../api/trpc';
 import {wrap} from "@mikro-orm/postgresql";
 import {Organization} from "~/db/entities";
 import {OrganizationUpdateSchema} from "~/validators/organization-schema";
 
 export const organizationRouter = createTRPCRouter({
-    get: protectedProcedure
+    get: protectedProcedure()
         .input(z.number())
         .query(async ({ ctx, input: id }) => {
             const record = await ctx.db.findOneOrFail(Organization, id);
             return wrap(record).toObject();
         }),
 
-    getAll: protectedProcedure
-        .input(
-            // z.object(
-            // {
-            //     session: z.infer<typeof MemberSession>,
-            //     member: z.infer<typeof Member>,
-            //     organization: z.infer<typeof StytchOrg>,
-            // }
-            // )
-            z.string()
-        )
-        .use(isAuthorizedForCondition('isAuthorized', 'emo.admin.organizations', ['read.external', 'read.internal']))
-        .use(isAuthorizedForCondition('isInternal', 'emo.admin.organizations', ['read.internal']))
+    getAll: protectedProcedure('emo.admin.organizations', ['read.external', 'read.internal'])
+        // // todo hasInternalAccess renmae
+        // .use(isAuthorizedForCondition('isInternal', 'emo.admin.organizations', ['read.internal']))
         .query(async ({ctx, input}) => {
             let records = null;
-
-            console.log('i', input);
+            //
+            // console.log('i', input);
             // if not authorized return nothing or error
-            if (!ctx.isAuthorized) {
-                return records;
-            } else {
-                // is internal
-                if (ctx.isInternal) {
-                    records = await ctx.db.find(Organization, {}, {filters: { organizationFilter: {organizationSlug: input}}});
-                } else {
-                    records = await ctx.db.find(Organization, {}, {exclude: ['notes'], filters: { organizationFilter: {organizationSlug: input}}});
-                }
-            }
+            // if (!ctx.isAuthorized) {
+            //     // todo return trpc error
+            //     return records;
+            // } else {
+            //     // is internal
+            //     if (ctx.isInternal) {
+            //         records = await ctx.db.find(Organization, {}, {filters: { organizationFilter: {organizationSlug: input}}});
+            //     } else {
+            //         records = await ctx.db.find(Organization, {}, {exclude: ['id', 'notes'], filters: { organizationFilter: {organizationSlug: input}}});
+            //     }
+            // }
 
+            records = await ctx.db.find(Organization, {});
             return records?.map((r) => wrap(r).toObject());
     }),
 
-    update: protectedProcedure
+    update: protectedProcedure()
         .input(OrganizationUpdateSchema)
         .mutation(async ({ ctx, input }) => {
             const model = await ctx.db.findOneOrFail(

@@ -26,13 +26,13 @@ export const SessionInfo = () => {
     }, [stytch]);
 
     console.log(Object.entries(permissions));
-    console.log('sessionInfo', session);
-    console.log('member', member);
-    console.log('organization', organization);
+    // console.log('sessionInfo', session);
+    // console.log('member', member);
+    // console.log('organization', organization);
 
     const [showAdminList, setShowAdminList] = useState(false);
     const hasAdminAccess = authorizeForResourceStartingWith(permissions, 'emo.admin');
-    //  todo possibly take a wildcard
+    // todo possibly take a wildcard
     const filteredPermissionsByAdmin = filterAllPermissionsStartingWith(permissions, 'emo.admin');
 
     const [showOrgs, setShowOrgs] = useState(false);
@@ -51,7 +51,7 @@ export const SessionInfo = () => {
             <br/>
             <div className="border m-3 p-4 bg-gray-100 w-md">{hasAdminAccess ?
                 !showAdminList ?
-                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => setShowAdminList(true)}>Show Admin List</button>
+                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => setShowAdminList(true)}>Show Admin List</button>
                     :
                     <>
                         <Admin permissions={filteredPermissionsByAdmin}/>
@@ -66,7 +66,7 @@ export const SessionInfo = () => {
                         disabled={!hasOrganizationAccess} onClick={() => setShowOrgs(true)}>Show organizations</button>
                     :
                     <>
-                        <Orgs  organization={organization}/>
+                        <Orgs />
                         <button className="bg-red-500 text-white font-bold py-1 px-1 my-1 rounded" onClick={() => setShowOrgs(false)}>Close Orgs list</button>
                     </>
                 }</div>

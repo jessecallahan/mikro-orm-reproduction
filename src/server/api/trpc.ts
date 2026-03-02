@@ -124,7 +124,10 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  * @see https://trpc.io/docs/procedures
  */
 
-const authenticateStytchSession = async ({ctx, next}) => {
+// todo add access to emo resource
+// todo apply global filter here and remove from individual
+const authenticateStytchSession = async (opts, resource_id, actions) => {
+	const {ctx, next} = opts;
 	const cookieStore = await cookies();
 	const session_jwt = cookieStore.get('stytch_session_jwt');
 
@@ -132,27 +135,63 @@ const authenticateStytchSession = async ({ctx, next}) => {
 		throw new TRPCError({ code: 'UNAUTHORIZED' });
 	}
 
+	// 1) authenticate session cookie
 	return client.sessions.authenticateJwt({ session_jwt: session_jwt?.value })
-		.then(session => {
-			// console.log('session', session);
+		.then(async session => {
+			let result = null
 			ctx.session = session;
+			// 2) authenticate by user (org id) and resource/action combo
+			// todo if no resource/action combo exists, authenticate that the user has access to any emo.* resource
+			if (resource_id === undefined) {
+				// result = await client.sessions.authenticate({
+				// 	session_jwt: session_jwt?.value,
+				// 	authorization_check: {
+				// 		organization_id: ctx.session.member_session.organization_id,
+				// 		resource_id: 'emo.*',
+				// 		action: '*'
+				// 	}
+				// });
+			} else {
+				for (const action of actions) {
+					try {
+						// Await the asynchronous function call
+						result = await client.sessions.authenticate({
+							session_jwt: session_jwt?.value,
+							authorization_check: {
+								organization_id: ctx.session.member_session.organization_id,
+								resource_id: resource_id,
+								action: action
+							}
+						});
+						break;
+					} catch (error) {
+						console.error('Function failed for action:', action, error);
+					}
+				}
+			}
+
+			console.log('r', result)
+			if (!result) {
+				throw new TRPCError({code: 'UNAUTHORIZED'});
+			}
+
 			return next({
 				ctx: {
 					// infers the `session` as non-nullable
-					session: { ...ctx.session},
+					session: {...ctx.session},
 					member: ctx.session.member_session
 					// temporal: new Client({
 					// 	connection: await getConnection(),
 					// 	namespace: env.TEMPORAL_NAMESPACE,
 					// }),
 				},
-			});
+			})
 		})
 };
 
-export const protectedProcedure = t.procedure
+export const protectedProcedure = (resource?: string, actions?: string[]) => t.procedure
 	.use(timingMiddleware)
-	.use(authenticateStytchSession)
+	.use((opts) => authenticateStytchSession(opts, resource, actions))
 
 // input: condition, resource, actions
 // loop over actions if one is authorized stop loop and return context with condition as true
