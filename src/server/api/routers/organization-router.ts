@@ -18,20 +18,12 @@ export const organizationRouter = createTRPCRouter({
         // .use(isAuthorizedForCondition('isInternal', 'emo.admin.organizations', ['read.internal']))
         .query(async ({ctx, input}) => {
             let records = null;
-            //
-            // console.log('i', input);
-            // if not authorized return nothing or error
-            // if (!ctx.isAuthorized) {
-            //     // todo return trpc error
-            //     return records;
-            // } else {
-            //     // is internal
             //     if (ctx.isInternal) {
             //         records = await ctx.db.find(Organization, {}, {filters: { organizationFilter: {organizationSlug: input}}});
             //     } else {
             //         records = await ctx.db.find(Organization, {}, {exclude: ['id', 'notes'], filters: { organizationFilter: {organizationSlug: input}}});
             //     }
-            // }
+
 
             records = await ctx.db.find(Organization, {});
             return records?.map((r) => wrap(r).toObject());
