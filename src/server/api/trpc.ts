@@ -157,7 +157,9 @@ export const protectedProcedure = t.procedure
 // input: condition, resource, actions
 // loop over actions if one is authorized stop loop and return context with condition as true
 // otherwise return context with condition false
-export const isAuthorizedForCondition = (condition: string, resource_id: string, actions: string[] ) =>
+
+// this method returns context attached with the condition given as either true or false
+export const isAuthorizedForCondition = (condition: 'isAuthorized' | 'isInternal', resource_id: string, actions: string[] ) =>
 	t.middleware(async ({ ctx, next }) => {
 		let isConditionTrue = false;
 		const cookieStore = await cookies();

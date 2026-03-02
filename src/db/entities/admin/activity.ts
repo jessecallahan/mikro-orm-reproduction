@@ -1,15 +1,32 @@
 import {
-    Entity,
+    Entity, Property,
 } from '@mikro-orm/postgresql';
 import { Base } from '../base';
 
 
 @Entity()
 export class Activity extends Base {
+    @Property()
+    userEmail: string;
 
+    @Property()
+    userName: string;
 
-    constructor(
-    ) {
-        super();
-    }
+    @Property({
+        type: 'jsonb',
+    })
+    userObject: JSON;
+
+    @Property()
+    resource: string;
+
+    @Property()
+    action: string;
+
+    // document
+
+    @Property({
+        type: 'jsonb',
+    })
+    entity: JSON;
 }

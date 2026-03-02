@@ -1,11 +1,13 @@
 import {defineConfig} from '@mikro-orm/postgresql';
 import {Organization} from "../db/entities";
 import {SeedManager} from "@mikro-orm/seeder";
+import {OrganizationSubscriber} from "~/db/subscribers/organization-subscriber";
 
 
 export default defineConfig({
         entities: [Organization],
         extensions: [SeedManager],
+        subscribers: [new OrganizationSubscriber()],
         seeder: {
             path: './src/db/seeders', // path to the folder with seeders
             pathTs: undefined, // path to the folder with TS seeders (if used, you should put path to compiled files in `path`)

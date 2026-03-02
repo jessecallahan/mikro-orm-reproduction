@@ -3,7 +3,7 @@ import { z } from 'zod';
 import {createTRPCRouter, isAuthorizedForCondition, protectedProcedure} from '../../api/trpc';
 import {wrap} from "@mikro-orm/postgresql";
 import {Organization} from "~/db/entities";
-import {MemberSession, Member, Organization as StytchOrg} from '@stytch/nextjs/b2b'
+import {OrganizationUpdateSchema} from "~/validators/organization-schema";
 
 export const organizationRouter = createTRPCRouter({
     get: protectedProcedure
@@ -44,4 +44,17 @@ export const organizationRouter = createTRPCRouter({
 
             return records?.map((r) => wrap(r).toObject());
     }),
+
+    update: protectedProcedure
+        .input(OrganizationUpdateSchema)
+        .mutation(async ({ ctx, input }) => {
+            const model = await ctx.db.findOneOrFail(
+                Organization,
+                input.id,
+                {},
+            );
+            wrap(model).assign(input);
+            await ctx.db.flush();
+            return wrap(model).toObject();
+        }),
 });

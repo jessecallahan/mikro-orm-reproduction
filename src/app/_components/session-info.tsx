@@ -8,9 +8,9 @@ import {
     useStytchIsAuthorized
 } from '@stytch/nextjs/b2b';
 import {useEffect, useState} from "react";
-import {hasMatchingField} from "~/functions/has-matching-field";
+import {authorizeForResourceStartingWith} from "~/functions/authorize-for-resource-starting-with";
 import {Admin} from "~/app/_components/admin";
-import {filterPermissionsByField} from "~/functions/filter-permissions-by-field";
+import {filterAllPermissionsStartingWith} from "~/functions/filter-all-permissions-starting-with";
 import {Orgs} from "~/app/_components/orgs";
 
 export const SessionInfo = () => {
@@ -26,12 +26,17 @@ export const SessionInfo = () => {
     }, [stytch]);
 
     console.log(Object.entries(permissions));
+    console.log('sessionInfo', session);
+    console.log('member', member);
+    console.log('organization', organization);
+
     const [showAdminList, setShowAdminList] = useState(false);
-    const hasAdminAccess = hasMatchingField(permissions, 'emo.admin');
-    const filteredPermissionsByAdmin = filterPermissionsByField(permissions, 'emo.admin');
+    const hasAdminAccess = authorizeForResourceStartingWith(permissions, 'emo.admin');
+    //  todo possibly take a wildcard
+    const filteredPermissionsByAdmin = filterAllPermissionsStartingWith(permissions, 'emo.admin');
 
     const [showOrgs, setShowOrgs] = useState(false);
-    const hasOrganizationAccess = hasMatchingField(permissions, 'emo.admin.organizations');
+    const hasOrganizationAccess = authorizeForResourceStartingWith(permissions, 'emo.admin.organizations');
 
     if (!isInitialized) {
         return <p>Loading...</p>;
@@ -44,35 +49,27 @@ export const SessionInfo = () => {
             <p>Organization: {organization.organization_name}</p>
             <p>Roles: {member.roles.map(r => r.role_id).join(', ')}</p>
             <br/>
-            <div>{hasAdminAccess ?
+            <div className="border m-3 p-4 bg-gray-100 w-md">{hasAdminAccess ?
                 !showAdminList ?
-                    <button onClick={() => setShowAdminList(true)}>Admin button</button>
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => setShowAdminList(true)}>Show Admin List</button>
                     :
                     <>
                         <Admin permissions={filteredPermissionsByAdmin}/>
-                        <button onClick={() => setShowAdminList(false)}>Close Admin list</button>
+                        <button className="bg-red-500 text-white font-bold py-1 px-1 my-1 rounded" onClick={() => setShowAdminList(false)}>Close Admin list</button>
                     </>
                 : null
             }</div>
-            <button disabled={!hasOrganizationAccess} onClick={() => setShowOrgs(true)}>Organizations button
-            </button>
-            <div>{showOrgs ?
-                <>
-                    <Orgs organization={organization}/>
-                    <button onClick={() => setShowOrgs(false)}>Close Orgs list</button>
-                </>
-                : null
-            }</div>
-            {/*<br />*/}
-            {/*<div>*/}
-            {/*    <p>Resource and Access Permissions:</p>*/}
-            {/*    {Object.entries(permissions).map(([key, value]) => (*/}
-            {/*        <li key={key}>*/}
-            {/*            {key}: {Object.entries(value).join(', ')}*/}
-            {/*        </li>*/}
-            {/*    ))}*/}
 
-            {/*</div>*/}
+            <div className="border m-3 p-4 bg-gray-100 w-md">
+                {!showOrgs ?
+                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        disabled={!hasOrganizationAccess} onClick={() => setShowOrgs(true)}>Show organizations</button>
+                    :
+                    <>
+                        <Orgs  organization={organization}/>
+                        <button className="bg-red-500 text-white font-bold py-1 px-1 my-1 rounded" onClick={() => setShowOrgs(false)}>Close Orgs list</button>
+                    </>
+                }</div>
         </div>
     ) : (
         <p>No active session</p>
