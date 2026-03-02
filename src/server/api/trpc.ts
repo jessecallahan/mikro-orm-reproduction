@@ -36,7 +36,6 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 
 	return {
 		db: db.em.fork(),
-		client: client,
 		...opts,
 	};
 };
