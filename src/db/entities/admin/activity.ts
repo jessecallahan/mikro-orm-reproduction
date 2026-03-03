@@ -2,7 +2,7 @@ import {
     Entity, Property,
 } from '@mikro-orm/postgresql';
 import { Base } from '../base';
-
+    public
 
 @Entity()
 export class Activity extends Base {

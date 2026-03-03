@@ -19,6 +19,20 @@ const client = new stytch.B2BClient({
 	secret: process.env.SECRET,
 });
 
+const userFilter = async (args, type) => {
+	if (type !== 'read') {
+	    return {};
+	}
+
+	// if not supply chain partner user don't apply filter
+	if (args.user.roles.some(r => r.role_id === 'emo_supply_chain_partner')) {
+	    return {};
+	}
+
+	return {
+		organizationSlug: {$eq: args.organization.organization_slug},
+	};
+}
 /**
  * 1. CONTEXT
  *
@@ -123,7 +137,7 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  * @see https://trpc.io/docs/procedures
  */
 
-// todo add access to emo resource
+// todo
 // todo apply global filter here and remove from individual
 const authenticateStytchSession = async (opts, resource_id, actions) => {
 	const {ctx, next} = opts;
@@ -138,8 +152,8 @@ const authenticateStytchSession = async (opts, resource_id, actions) => {
 	return client.sessions.authenticateJwt({ session_jwt: session_jwt?.value })
 		.then(async session => {
 			let result = null
-			ctx.session = session;
-			// 2) authenticate by user (org id) and resource/action combo
+
+			// 2) add access to emo resource (authenticate by user (org id) and resource/action combo)
 			// todo if no resource/action combo exists, authenticate that the user has access to any emo.* resource
 			if (resource_id === undefined) {
 				// result = await client.sessions.authenticate({
@@ -157,28 +171,26 @@ const authenticateStytchSession = async (opts, resource_id, actions) => {
 						result = await client.sessions.authenticate({
 							session_jwt: session_jwt?.value,
 							authorization_check: {
-								organization_id: ctx.session.member_session.organization_id,
+								organization_id: session.member_session.organization_id,
 								resource_id: resource_id,
 								action: action
 							}
 						});
-						break;
 					} catch (error) {
-						console.error('Function failed for action:', action, error);
+						//console.error('Function failed for action:', action, error);
 					}
 				}
 			}
 
-			console.log('r', result)
 			if (!result) {
 				throw new TRPCError({code: 'UNAUTHORIZED'});
 			}
 
 			return next({
 				ctx: {
+					...ctx,
 					// infers the `session` as non-nullable
-					session: {...ctx.session},
-					member: ctx.session.member_session
+					session: {...session},
 					// temporal: new Client({
 					// 	connection: await getConnection(),
 					// 	namespace: env.TEMPORAL_NAMESPACE,
@@ -191,15 +203,16 @@ const authenticateStytchSession = async (opts, resource_id, actions) => {
 export const protectedProcedure = (resource?: string, actions?: string[]) => t.procedure
 	.use(timingMiddleware)
 	.use((opts) => authenticateStytchSession(opts, resource, actions))
+	.use(addFilters())
 
 // input: condition, resource, actions
 // loop over actions if one is authorized stop loop and return context with condition as true
 // otherwise return context with condition false
 
 // this method returns context attached with the condition given as either true or false
-export const isAuthorizedForCondition = (condition: 'isAuthorized' | 'isInternal', resource_id: string, actions: string[] ) =>
+export const hasInternalAccess = (resource_id: string, actions: string[] ) =>
 	t.middleware(async ({ ctx, next }) => {
-		let isConditionTrue = false;
+		let result = null
 		const cookieStore = await cookies();
 		const session_jwt = cookieStore.get('stytch_session_jwt');
 
@@ -210,31 +223,50 @@ export const isAuthorizedForCondition = (condition: 'isAuthorized' | 'isInternal
 		for (const action of actions) {
 			try {
 				// Await the asynchronous function call
-				const result = await client.sessions.authenticate({
+				result = await client.sessions.authenticate({
 					session_jwt: session_jwt?.value,
 					authorization_check: {
-						organization_id: ctx.member.organization_id,
+						organization_id: ctx.session.member_session.organization_id,
 						resource_id: resource_id,
 						action: action
 					}
 				});
 
-				console.log('Function successful:', result);
-				isConditionTrue = true;
-				break;
 			} catch (error) {
-				console.error('Function failed for action:', action, error);
+				// console.error('Function failed for action:', action, error);
 			}
+		}
+
+		if (!result) {
+			result = false;
 		}
 
 		return next({
 			ctx: {
 				...ctx,
-				[condition]: isConditionTrue,
+				isInternal: !!result,
 			},
 		})
 	});
 
+export const addFilters = () =>
+	t.middleware(async ({ ctx, next }) => {
+		// add filter
+		ctx.db.addFilter('user', userFilter);
+		// ctx.db.addFilter('user', args => ({ user: args.user_session }));
 
+		// pass filter params
+		const member = await client.organizations.members.get({
+			organization_id: ctx.session.member_session.organization_id,
+			member_id: ctx.session.member_session.member_id,
+		})
+		console.log('[member]', member);
+		ctx.db.setFilterParams('user', { user: member.member, organization: member.organization });
+		return next({
+			ctx: {
+				...ctx
+			},
+		})
+	});
 
 

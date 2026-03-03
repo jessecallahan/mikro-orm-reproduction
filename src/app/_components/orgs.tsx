@@ -38,7 +38,7 @@ export const Orgs = () => {
         <div>
             <ul>
                 {data?.map(org => (
-                    <li key={org.id}>
+                    <li key={org.name}>
                         <strong>{org.name}</strong>
                     </li>
                 ))}
