@@ -18,19 +18,20 @@ import {Filter} from "@mikro-orm/core";
  * https://docs.google.com/spreadsheets/d/1vUM05YjC0aAMbJCFo0qH3xMgzEMrYReRCGFY1GFEWxY/edit?gid=797872787#gid=797872787
  **/
 @Entity()
-@Filter({ name: 'user', cond: async (args) => {
-        // if (type !== 'read') {
-        //     return {};
-        // }
-        //
-        // if (args.user.roles.some('emo_supply_chain_partner')) {
-        //     return {};
-        // }
-
-        return {
-            organizationSlug: { $eq: args.user.organization_slug } ,
-        };
-    } })
+// @Filter({ name: 'user', cond: async (args) => {
+//         if (type !== 'read') {
+//             return {};
+//         }
+//
+//         // if not supply chain partner user don't apply filter
+//         if (args.user.roles.some(r => r.role_id === 'emo_supply_chain_partner')) {
+//             return {};
+//         }
+//
+//         return {
+//             organizationSlug: {$eq: args.organization.organization_slug},
+//         };
+//     } })
 export class Organization extends Base {
     @Property()
     organizationSlug: string;

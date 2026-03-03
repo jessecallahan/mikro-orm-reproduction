@@ -260,7 +260,7 @@ export const addFilters = () =>
 			organization_id: ctx.session.member_session.organization_id,
 			member_id: ctx.session.member_session.member_id,
 		})
-		console.log('[member]', member);
+		// console.log('[member]', member);
 		ctx.db.setFilterParams('user', { user: member.member, organization: member.organization });
 		return next({
 			ctx: {

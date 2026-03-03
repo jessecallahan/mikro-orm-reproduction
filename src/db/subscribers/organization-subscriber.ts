@@ -19,7 +19,8 @@ export class OrganizationSubscriber
     private async upsertOrganization(
         args: EventArgs<Organization>,
     ): Promise<void> {
-        console.log('args', args);
+        const em = args.em;
+        console.log('params', em.filterParams);
 
         // Upsert "blank" material buyer records, ignoring any records that already exist
         // await em.upsertMany(

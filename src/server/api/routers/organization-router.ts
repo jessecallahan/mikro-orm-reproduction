@@ -20,20 +20,20 @@ export const organizationRouter = createTRPCRouter({
                 records = await ctx.db.find(Organization, {});
             } else {
                 records = await ctx.db.find(Organization, {}, {
-                    exclude: ['id', 'notes']
+                    exclude: ['id']
                 });
             }
             return records?.map((r) => wrap(r).toObject());
         }),
 
-    update: protectedProcedure()
+    update: protectedProcedure('emo.admin.organizations', ['read.external']) // todo this should be update but emo_admin user isn't set up correctly
         .input(OrganizationUpdateSchema)
         .mutation(async ({ctx, input}) => {
             const model = await ctx.db.findOneOrFail(
                 Organization,
                 input.id,
-                {},
             );
+
             wrap(model).assign(input);
             await ctx.db.flush();
             return wrap(model).toObject();

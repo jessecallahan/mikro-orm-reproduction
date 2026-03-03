@@ -1,11 +1,11 @@
 'use client';
 import { api } from '~/trpc/react';
-import {OrganizationType} from "~/db/enums/organization-type";
+import {OrganizationType} from "../../db/enums/organization-type";
 import {Status} from "~/db/enums/status";
+import type {OrganizationUpdateSchema} from "~/validators/organization-schema";
+import {z} from "zod";
 
 export const Orgs = () => {
-    // use to test protected route when user logged out
-    // const organizations = api.organization.getAll.useQuery({session: session, member: member, organization: organization});
     const {data, isLoading} = api.organization.getAll.useQuery();
     const update = api.organization.update.useMutation({
         onSuccess: () => {
@@ -14,19 +14,21 @@ export const Orgs = () => {
         },
     })
 
-    const upsertOrg = () => {
-        update.mutate({
+    const upsertOrg = async () => {
+        const defaultValues: z.input<typeof OrganizationUpdateSchema> = {
             id: 1,
             organizationSlug: '3-dimensional',
             name: '3Dimensional test',
             type: OrganizationType.SupplyChainPartner,
             effectiveDateRange: {
-                from: new Date('2014-08-01'),
-                to: new Date('2014-08-31'),
+                from: new Date('9/12/2006'),
+                to: null,
             },
             notes: 'notes',
             status: Status.Inactive
-        })
+        };
+
+        return await update.mutateAsync(defaultValues)
     };
 
     if (isLoading) {
@@ -43,7 +45,7 @@ export const Orgs = () => {
                     </li>
                 ))}
             </ul>
-            <button className="bg-green-500 text-white font-bold py-1 px-1 rounded"onClick={upsertOrg}>Upsert Org</button>
+            <button className="bg-green-500 text-white font-bold py-1 px-1 rounded" onClick={upsertOrg}>Upsert Org</button>
         </div>
     );
 };
