@@ -11,7 +11,7 @@ const OrganizationSchema = z.object({
     id: z.number(),
     organizationSlug: z.string(),
     name: z.string(),
-    type: z.string(),
+    type: z.string(), // todo should be z.enum() but ran into problem
     effectiveDateRange: z.object({
         from: z.date(),
         to: z
@@ -20,7 +20,7 @@ const OrganizationSchema = z.object({
             .nullable() // ui input
     }),
     notes: z.string().nullable(),
-    status: z.string()
+    status: z.string() // todo should be z.enum() but ran into problem
 }) satisfies ZodTimestampless<Organization>;
 
 export const OrganizationUpdateSchema = OrganizationSchema;
