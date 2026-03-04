@@ -6,7 +6,7 @@ export const allowedActionIcon = (action) => {
             return '🔒'
         case "create":
             return '➕'
-        case "edit":
+        case "update":
             return '✏️'
         case "delete":
             return '🗑️'

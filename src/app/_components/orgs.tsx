@@ -16,16 +16,16 @@ export const Orgs = () => {
 
     const upsertOrg = async () => {
         const defaultValues: z.input<typeof OrganizationUpdateSchema> = {
-            id: 1,
-            organizationSlug: '3-dimensional',
-            name: '3Dimensional test',
-            type: OrganizationType.SupplyChainPartner,
+            id: 2,
+            organizationSlug: 'honda-trading-raw-materials',
+            name: 'Honda Trading Raw Materials test',
+            type: OrganizationType.HondaTrading,
             effectiveDateRange: {
                 from: new Date('9/12/2006'),
                 to: null,
             },
-            notes: 'notes',
-            status: Status.Inactive
+            notes: 'Used for all users that have Honda Trading roles.  No supply-chain partner locations can be created under this organization.',
+            status: Status.Active
         };
 
         return await update.mutateAsync(defaultValues)

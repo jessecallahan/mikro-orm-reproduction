@@ -49,7 +49,7 @@ export const SessionInfo = () => {
             <p>Organization: {organization.organization_name}</p>
             <p>Roles: {member.roles.map(r => r.role_id).join(', ')}</p>
             <br/>
-            <div className="border m-3 p-4 bg-gray-100 w-md">{hasAdminAccess ?
+            <div className="border m-3 p-4 bg-gray-100 w-lg">{hasAdminAccess ?
                 !showAdminList ?
                     <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => setShowAdminList(true)}>Show Admin List</button>
                     :
@@ -60,7 +60,7 @@ export const SessionInfo = () => {
                 : null
             }</div>
 
-            <div className="border m-3 p-4 bg-gray-100 w-md">
+            <div className="border m-3 p-4 bg-gray-100 w-lg">
                 {!showOrgs ?
                     <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                         disabled={!hasOrganizationAccess} onClick={() => setShowOrgs(true)}>Show organizations</button>
