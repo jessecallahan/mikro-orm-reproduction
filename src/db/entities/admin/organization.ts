@@ -5,11 +5,12 @@ import {
     Enum,
     Property,
 } from '@mikro-orm/postgresql';
-import { Base } from '../base';
+import {Base} from '../base';
 import {OrganizationType} from "~/db/enums/organization-type";
 import {DateRange} from "~/db/entities/date-range";
 import {Status} from "~/db/enums/status";
 import {Filter} from "@mikro-orm/core";
+import type {ActivityTrackable} from "~/db/subscribers/activity-subscriber";
 
 /**
  * These are the organizations (business units) used to manage users and supply chain partner locations
@@ -18,25 +19,27 @@ import {Filter} from "@mikro-orm/core";
  * https://docs.google.com/spreadsheets/d/1vUM05YjC0aAMbJCFo0qH3xMgzEMrYReRCGFY1GFEWxY/edit?gid=797872787#gid=797872787
  **/
 @Entity()
-// @Filter({ name: 'user', cond: async (args) => {
+// @Filter({
+//     name: 'user', cond: async (args, type) => {
 //         if (type !== 'read') {
 //             return {};
 //         }
 //
 //         // if not supply chain partner user don't apply filter
 //         if (args.user.roles.some(r => r.role_id === 'emo_supply_chain_partner')) {
-//             return {};
+//             return {
+//                 organizationSlug: {$eq: args.organization.organization_slug},
+//             };
 //         }
 //
-//         return {
-//             organizationSlug: {$eq: args.organization.organization_slug},
-//         };
-//     } })
-export class Organization extends Base {
+//         return {};
+//     }
+// })
+export class Organization extends Base implements ActivityTrackable {
     @Property()
     organizationSlug: string;
 
-    @Property({ unique: true })
+    @Property({unique: true})
     name: string;
 
     @Enum({
@@ -53,7 +56,7 @@ export class Organization extends Base {
     })
     effectiveDateRange: DateRange;
 
-    @Property({ nullable: true })
+    @Property({nullable: true})
     notes?: string;
 
     @Enum({

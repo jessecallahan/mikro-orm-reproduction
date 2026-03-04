@@ -20,7 +20,7 @@ export const organizationRouter = createTRPCRouter({
                 records = await ctx.db.find(Organization, {});
             } else {
                 records = await ctx.db.find(Organization, {}, {
-                    exclude: ['id']
+                    exclude: ['id', 'notes']
                 });
             }
             return records?.map((r) => wrap(r).toObject());

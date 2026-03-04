@@ -26,12 +26,12 @@ const userFilter = async (args, type) => {
 
 	// if not supply chain partner user don't apply filter
 	if (args.user.roles.some(r => r.role_id === 'emo_supply_chain_partner')) {
-	    return {};
+	    return {
+			organizationSlug: {$eq: args.organization.organization_slug},
+		};
 	}
 
-	return {
-		organizationSlug: {$eq: args.organization.organization_slug},
-	};
+	return {};
 }
 /**
  * 1. CONTEXT
@@ -133,14 +133,19 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  *
  * If you want a query or mutation to ONLY be accessible to logged in users, use this. It verifies
  * the session is valid and guarantees `ctx.session` is not null. It also adds any filter to EM models.
+ *
+ * todo definitions of params (e.g. all of the actions or any of these actions)
  */
+// todo rename to resourceProtectedProcedure
 export const protectedProcedure = (resource?: string, actions?: string[]) =>
 	t.procedure
 		.use(timingMiddleware)
 		.use((opts) => authenticateStytchSession(opts, resource, actions))
 		.use(addFilters())
+// todo add logger context
 
-/** 1. Authorize the JWT on the cookies
+/**
+ * 1. Authorize the JWT on the cookies
  * 2. Authorize role access
  *
  * @see https://trpc.io/docs/procedures
@@ -161,6 +166,7 @@ const authenticateStytchSession = async (opts, resource_id, actions) => {
 
 			// 2) add access to emo resource (authenticate by user (org id) and resource/action combo)
 			// todo if no resource/action combo exists, authenticate that the user has access to any emo.* resource
+			// todo check roles
 			if (resource_id === undefined) {
 				// result = await client.sessions.authenticate({
 				// 	session_jwt: session_jwt?.value,
@@ -206,6 +212,7 @@ const authenticateStytchSession = async (opts, resource_id, actions) => {
 		})
 };
 
+// todo one action not list
 export const hasInternalAccess = (resource_id: string, actions: string[] ) =>
 	t.middleware(async ({ ctx, next }) => {
 		let result = null
@@ -255,7 +262,7 @@ export const addFilters = () =>
 		const member = await client.organizations.members.get({
 			organization_id: ctx.session.member_session.organization_id,
 			member_id: ctx.session.member_session.member_id,
-		})
+		});
 		ctx.db.setFilterParams('user', { user: member.member, organization: member.organization });
 
 		// console.log('[member]', member);

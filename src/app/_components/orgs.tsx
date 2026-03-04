@@ -14,7 +14,7 @@ export const Orgs = () => {
         },
     })
 
-    const upsertOrg = async () => {
+    const updateOrg = async () => {
         const defaultValues: z.input<typeof OrganizationUpdateSchema> = {
             id: 2,
             organizationSlug: 'honda-trading-raw-materials',
@@ -45,7 +45,7 @@ export const Orgs = () => {
                     </li>
                 ))}
             </ul>
-            <button className="bg-green-500 text-white font-bold py-1 px-1 rounded" onClick={upsertOrg}>Upsert Org</button>
+            <button className="bg-green-500 text-white font-bold py-1 px-1 rounded" onClick={updateOrg}>Update Org</button>
         </div>
     );
 };
