@@ -29,13 +29,19 @@ export const organizationRouter = createTRPCRouter({
     update: protectedProcedure('emo.admin.organizations', ['update'])
         .input(OrganizationUpdateSchema)
         .mutation(async ({ctx, input}) => {
-            const model = await ctx.db.findOneOrFail(
+            const fork = ctx.db.fork({
+                loggerContext: {
+                    resource: 'emo.admin.organizations',
+                    action: 'update'
+                }
+            });
+            const model = await fork.findOneOrFail(
                 Organization,
-                input.id,
+                input.id
             );
 
             wrap(model).assign(input);
-            await ctx.db.flush();
+            await fork.flush();
             return wrap(model).toObject();
         }),
 });

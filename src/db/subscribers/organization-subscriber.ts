@@ -13,25 +13,16 @@ export class OrganizationSubscriber
     async afterUpdate(
         args: EventArgs<Organization>,
     ): Promise<void> {
-        await this.upsertOrganization(args);
+        await this.createActivity(args);
     }
 
-    private async upsertOrganization(
+    private async createActivity(
         args: EventArgs<Organization>,
     ): Promise<void> {
         const em = args.em;
         console.log('params', em.filterParams);
+        console.log('logger', em.getLoggerContext());
 
-        // Upsert "blank" material buyer records, ignoring any records that already exist
-        // await em.upsertMany(
-        //     Organization,
-        //     getPermutations().map((blankRecord) => ({
-        //         location: location.id,
-        //         ...blankRecord,
-        //     })),
-        //     {
-        //         onConflictAction: 'ignore',
-        //     },
-        // );
+       // todo create activity record
     }
 }

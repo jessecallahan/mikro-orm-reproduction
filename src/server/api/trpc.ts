@@ -132,13 +132,13 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  * Protected (authenticated) procedure
  *
  * If you want a query or mutation to ONLY be accessible to logged in users, use this. It verifies
- * the session is valid and guarantees `ctx.session.user` is not null.
+ * the session is valid and guarantees `ctx.session` is not null.
+ *
+ * 1. Authorize the JWT on the cookies
+ * 2. Authorize role access
  *
  * @see https://trpc.io/docs/procedures
  */
-
-// todo
-// todo apply global filter here and remove from individual
 const authenticateStytchSession = async (opts, resource_id, actions) => {
 	const {ctx, next} = opts;
 	const cookieStore = await cookies();
@@ -200,7 +200,8 @@ const authenticateStytchSession = async (opts, resource_id, actions) => {
 		})
 };
 
-export const protectedProcedure = (resource?: string, actions?: string[]) => t.procedure
+export const protectedProcedure = (resource?: string, actions?: string[]) =>
+	t.procedure
 	.use(timingMiddleware)
 	.use((opts) => authenticateStytchSession(opts, resource, actions))
 	.use(addFilters())
@@ -214,7 +215,7 @@ export const hasInternalAccess = (resource_id: string, actions: string[] ) =>
 	t.middleware(async ({ ctx, next }) => {
 		let result = null
 		const cookieStore = await cookies();
-		const session_jwt = cookieStore.get('stytch_session_jwt');
+		const session_jwt = cookieStore.get('stytch_session_jwt']);
 
 		if (!session_jwt?.value) {
 			throw new TRPCError({ code: 'UNAUTHORIZED' });
@@ -260,8 +261,9 @@ export const addFilters = () =>
 			organization_id: ctx.session.member_session.organization_id,
 			member_id: ctx.session.member_session.member_id,
 		})
-		// console.log('[member]', member);
 		ctx.db.setFilterParams('user', { user: member.member, organization: member.organization });
+
+		// console.log('[member]', member);
 		return next({
 			ctx: {
 				...ctx
