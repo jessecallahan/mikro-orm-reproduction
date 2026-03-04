@@ -215,7 +215,7 @@ export const hasInternalAccess = (resource_id: string, actions: string[] ) =>
 	t.middleware(async ({ ctx, next }) => {
 		let result = null
 		const cookieStore = await cookies();
-		const session_jwt = cookieStore.get('stytch_session_jwt']);
+		const session_jwt = cookieStore.get('stytch_session_jwt');
 
 		if (!session_jwt?.value) {
 			throw new TRPCError({ code: 'UNAUTHORIZED' });
