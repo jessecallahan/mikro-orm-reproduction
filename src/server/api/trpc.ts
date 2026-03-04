@@ -133,8 +133,14 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  *
  * If you want a query or mutation to ONLY be accessible to logged in users, use this. It verifies
  * the session is valid and guarantees `ctx.session` is not null.
- *
- * 1. Authorize the JWT on the cookies
+ */
+export const protectedProcedure = (resource?: string, actions?: string[]) =>
+	t.procedure
+		.use(timingMiddleware)
+		.use((opts) => authenticateStytchSession(opts, resource, actions))
+		.use(addFilters())
+
+/** 1. Authorize the JWT on the cookies
  * 2. Authorize role access
  *
  * @see https://trpc.io/docs/procedures
@@ -199,12 +205,6 @@ const authenticateStytchSession = async (opts, resource_id, actions) => {
 			})
 		})
 };
-
-export const protectedProcedure = (resource?: string, actions?: string[]) =>
-	t.procedure
-	.use(timingMiddleware)
-	.use((opts) => authenticateStytchSession(opts, resource, actions))
-	.use(addFilters())
 
 export const hasInternalAccess = (resource_id: string, actions: string[] ) =>
 	t.middleware(async ({ ctx, next }) => {
