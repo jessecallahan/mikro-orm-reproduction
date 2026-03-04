@@ -206,11 +206,6 @@ export const protectedProcedure = (resource?: string, actions?: string[]) =>
 	.use((opts) => authenticateStytchSession(opts, resource, actions))
 	.use(addFilters())
 
-// input: condition, resource, actions
-// loop over actions if one is authorized stop loop and return context with condition as true
-// otherwise return context with condition false
-
-// this method returns context attached with the condition given as either true or false
 export const hasInternalAccess = (resource_id: string, actions: string[] ) =>
 	t.middleware(async ({ ctx, next }) => {
 		let result = null
