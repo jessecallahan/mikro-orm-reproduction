@@ -15,7 +15,6 @@ export async function getORM(options?: Options): Promise<MikroORM> {
     if (!orm) {
         orm = await MikroORM.init({
             ...config
-            // filters: {organizationFilter: {cond: args => ({organizationSlug: { $eq: args.organizationSlug }})}}
         });
     }
 
