@@ -132,7 +132,7 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  * Protected (authenticated) procedure
  *
  * If you want a query or mutation to ONLY be accessible to logged in users, use this. It verifies
- * the session is valid and guarantees `ctx.session` is not null.
+ * the session is valid and guarantees `ctx.session` is not null. It also adds any filter to EM models.
  */
 export const protectedProcedure = (resource?: string, actions?: string[]) =>
 	t.procedure
