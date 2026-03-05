@@ -1,11 +1,11 @@
 import {defineConfig} from '@mikro-orm/postgresql';
-import {Organization} from "../db/entities";
+import {Activity, Organization} from "../db/entities";
 import {SeedManager} from "@mikro-orm/seeder";
 import {ActivitySubscriber} from "~/db/subscribers/activity-subscriber";
 
 
 export default defineConfig({
-        entities: [Organization],
+        entities: [Organization, Activity],
         extensions: [SeedManager],
         subscribers: [new ActivitySubscriber()],
         seeder: {
