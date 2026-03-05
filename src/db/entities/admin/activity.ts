@@ -1,7 +1,9 @@
 import {
-    Entity, Property,
+    Entity, Enum, Property,
 } from '@mikro-orm/postgresql';
 import {Base} from '../base';
+import {Organization} from "~/db/entities";
+import {ManyToOne, Ref} from "@mikro-orm/core";
 
 @Entity()
 export class Activity extends Base {
@@ -22,7 +24,9 @@ export class Activity extends Base {
     @Property()
     action: string;
 
-    // document
+    // todo make generic (use ActivityTrackable)
+    @ManyToOne(() => Organization, { ref: true })
+    document: Ref<Organization>;
 
     @Property({
         type: 'jsonb',
@@ -35,7 +39,6 @@ export class Activity extends Base {
         userObject: JSON,
         resource: string,
         action: string,
-        // document
         entity: JSON,
     ) {
         super();

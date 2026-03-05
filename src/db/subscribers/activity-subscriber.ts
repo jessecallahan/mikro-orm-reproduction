@@ -45,7 +45,7 @@ export class ActivitySubscriber
         const cs = changeSets.find(cs => cs.type === ChangeSetType.UPDATE);
 
         // console.log('params', em.filterParams);
-        console.log('logger', loggerContext.user.name);
+        console.log('logger', loggerContext);
 
         // fail if no logger context
         if (!loggerContext) {
@@ -61,8 +61,9 @@ export class ActivitySubscriber
                 loggerContext.resource,
                 loggerContext.action,
                 cs.entity
-            )
-            cs.entity.activity = activity;
+            );
+
+            cs.entity.activities.add(activity);
             args.uow.computeChangeSet(activity);
             args.uow.recomputeSingleChangeSet(cs.entity);
         }

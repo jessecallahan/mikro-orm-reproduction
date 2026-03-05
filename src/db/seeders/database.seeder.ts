@@ -5,9 +5,7 @@ import {OrganizationMembershipSeeder} from "~/db/seeders/organization-membership
 export class DatabaseSeeder extends Seeder {
     run(em: EntityManager): Promise<void> {
         return this.call(em, [
-
             OrganizationMembershipSeeder,
-
         ]);
     }
 }

@@ -9,9 +9,12 @@ import {Base} from '../base';
 import {OrganizationType} from "~/db/enums/organization-type";
 import {DateRange} from "~/db/entities/date-range";
 import {Status} from "~/db/enums/status";
-import {Filter} from "@mikro-orm/core";
+import {Collection, Filter, OneToMany} from "@mikro-orm/core";
 import type {ActivityTrackable} from "~/db/subscribers/activity-subscriber";
+import {Activity} from "~/db/entities";
 
+type DocumentType =
+    | Organization
 /**
  * These are the organizations (business units) used to manage users and supply chain partner locations
  * with access to the eMO application.
@@ -71,6 +74,12 @@ export class Organization extends Base implements ActivityTrackable {
     //     (membership) => membership.organization,
     // )
     // membership = new Collection<OrganizationMembership>(this);
+
+    @OneToMany(
+        () => Activity,
+        (activity) => activity.document,
+    )
+    activities = new Collection<DocumentType>(this);
 
     constructor(
         organizationSlug: string,
