@@ -25,7 +25,7 @@ export class ActivitySubscriber
         args: EventArgs<ActivityTrackable>,
     ): Promise<void> {
         const em = args.em;
-        console.log('params', em.filterParams);
+        // console.log('params', em.filterParams);
         console.log('logger', em.getLoggerContext());
 
         // todo fail if no logger context

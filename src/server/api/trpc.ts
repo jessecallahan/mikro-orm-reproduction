@@ -132,17 +132,19 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  * Protected (authenticated) procedure
  *
  * If you want a query or mutation to ONLY be accessible to logged in users, use this. It verifies
- * the session is valid and guarantees `ctx.session` is not null. It also adds any filter to EM models.
+ * the session is valid and guarantees `ctx.session` is not null.
  *
- * todo definitions of params (e.g. all of the actions or any of these actions)
+ * It also adds filters to EM models and a forks the db context to a context with a em logger attached.
+ *
+ * @param resource - resource to authenticate against
+ * @param action - action user is taking to authenticate against
  */
-// todo rename to resourceProtectedProcedure
-export const protectedProcedure = (resource?: string, actions?: string[]) =>
+export const resourceProtectedProcedure = (resource?: string, action?: string) =>
 	t.procedure
 		.use(timingMiddleware)
-		.use((opts) => authenticateStytchSession(opts, resource, actions))
+		.use((opts) => authenticateStytchSession(opts, resource, action))
 		.use(addFilters())
-// todo add logger context
+		.use(addLoggerContext(resource, action))
 
 /**
  * 1. Authorize the JWT on the cookies
@@ -150,7 +152,7 @@ export const protectedProcedure = (resource?: string, actions?: string[]) =>
  *
  * @see https://trpc.io/docs/procedures
  */
-const authenticateStytchSession = async (opts, resource_id, actions) => {
+const authenticateStytchSession = async (opts, resource_id, action) => {
 	const {ctx, next} = opts;
 	const cookieStore = await cookies();
 	const session_jwt = cookieStore.get('stytch_session_jwt');
@@ -177,21 +179,20 @@ const authenticateStytchSession = async (opts, resource_id, actions) => {
 				// 	}
 				// });
 			} else {
-				for (const action of actions) {
-					try {
-						// Await the asynchronous function call
-						result = await client.sessions.authenticate({
-							session_jwt: session_jwt?.value,
-							authorization_check: {
-								organization_id: session.member_session.organization_id,
-								resource_id: resource_id,
-								action: action
-							}
-						});
-					} catch (error) {
-						//console.error('Function failed for action:', action, error);
-					}
+				try {
+					// Await the asynchronous function call
+					result = await client.sessions.authenticate({
+						session_jwt: session_jwt?.value,
+						authorization_check: {
+							organization_id: session.member_session.organization_id,
+							resource_id: resource_id,
+							action: action
+						}
+					});
+				} catch (error) {
+					//console.error('Function failed for action:', action, error);
 				}
+
 			}
 
 			if (!result) {
@@ -212,8 +213,7 @@ const authenticateStytchSession = async (opts, resource_id, actions) => {
 		})
 };
 
-// todo one action not list
-export const hasInternalAccess = (resource_id: string, actions: string[] ) =>
+export const hasInternalAccess = (resource_id: string, action: string ) =>
 	t.middleware(async ({ ctx, next }) => {
 		let result = null
 		const cookieStore = await cookies();
@@ -223,22 +223,22 @@ export const hasInternalAccess = (resource_id: string, actions: string[] ) =>
 			throw new TRPCError({ code: 'UNAUTHORIZED' });
 		}
 
-		for (const action of actions) {
-			try {
-				// Await the asynchronous function call
-				result = await client.sessions.authenticate({
-					session_jwt: session_jwt?.value,
-					authorization_check: {
-						organization_id: ctx.session.member_session.organization_id,
-						resource_id: resource_id,
-						action: action
-					}
-				});
 
-			} catch (error) {
-				// console.error('Function failed for action:', action, error);
-			}
+		try {
+			// Await the asynchronous function call
+			result = await client.sessions.authenticate({
+				session_jwt: session_jwt?.value,
+				authorization_check: {
+					organization_id: ctx.session.member_session.organization_id,
+					resource_id: resource_id,
+					action: action
+				}
+			});
+
+		} catch (error) {
+			// console.error('Function failed for action:', action, error);
 		}
+
 
 		if (!result) {
 			result = false;
@@ -247,7 +247,7 @@ export const hasInternalAccess = (resource_id: string, actions: string[] ) =>
 		return next({
 			ctx: {
 				...ctx,
-				isInternal: !!result,
+				hasInternalAccess: !!result,
 			},
 		})
 	});
@@ -256,7 +256,6 @@ export const addFilters = () =>
 	t.middleware(async ({ ctx, next }) => {
 		// add filter
 		ctx.db.addFilter('user', userFilter);
-		// ctx.db.addFilter('user', args => ({ user: args.user_session }));
 
 		// pass filter params
 		const member = await client.organizations.members.get({
@@ -269,6 +268,30 @@ export const addFilters = () =>
 		return next({
 			ctx: {
 				...ctx
+			},
+		})
+	});
+
+export const addLoggerContext = (resource: string, action: string) =>
+	t.middleware(async ({ ctx, next }) => {
+		const member = await client.organizations.members.get({
+			organization_id: ctx.session.member_session.organization_id,
+			member_id: ctx.session.member_session.member_id,
+		});
+
+		const fork = ctx.db.fork({
+			loggerContext: {
+				resource: resource,
+				action: action,
+				user: member.member
+			}
+		});
+
+		// replace db with fork with attached logger contextual to the trpc route called
+		return next({
+			ctx: {
+				...ctx,
+				db: fork
 			},
 		})
 	});
