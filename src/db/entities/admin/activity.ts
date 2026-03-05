@@ -3,12 +3,9 @@ import {
 } from '@mikro-orm/postgresql';
 import {Base} from '../base';
 import {Organization} from "~/db/entities";
-import {ManyToOne, Ref} from "@mikro-orm/core";
-import type {ActivityTrackable} from "~/db/subscribers/activity-subscriber";
+import {ManyToOne} from "@mikro-orm/core";
 
-@Entity(
-    {discriminatorColumn: 'documentType',}
-)
+@Entity()
 export class Activity extends Base {
     @Property()
     userEmail: string;
