@@ -272,7 +272,7 @@ export const addFilters = () =>
 		})
 	});
 
-export const addLoggerContext = (resource: string, action: string) =>
+export const addLoggerContext = (resource?: string, action?: string) =>
 	t.middleware(async ({ ctx, next }) => {
 		const member = await client.organizations.members.get({
 			organization_id: ctx.session.member_session.organization_id,

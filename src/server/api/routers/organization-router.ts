@@ -12,10 +12,10 @@ export const organizationRouter = createTRPCRouter({
             return wrap(record).toObject();
         }),
 
-    getAll: resourceProtectedProcedure('emo.admin.organizations', 'read.internal')
+    getAll: resourceProtectedProcedure('emo.admin.organizations', 'read.external')
         .use(hasInternalAccess('emo.admin.organizations', 'read.internal'))
         .query(async ({ctx}) => {
-            let excludedFields = ctx.hasInternalAccess ? ['id', 'notes'] : [];
+            let excludedFields = ctx.hasInternalAccess ? [] : ['id', 'notes'];
             const records = await ctx.db.find(Organization, {}, {
                 exclude: excludedFields
             });
