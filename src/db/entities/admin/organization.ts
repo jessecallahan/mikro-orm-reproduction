@@ -13,8 +13,6 @@ import {Collection, Filter, OneToMany} from "@mikro-orm/core";
 import type {ActivityTrackable} from "~/db/subscribers/activity-subscriber";
 import {Activity} from "~/db/entities";
 
-type DocumentType =
-    | Organization
 /**
  * These are the organizations (business units) used to manage users and supply chain partner locations
  * with access to the eMO application.
@@ -75,11 +73,11 @@ export class Organization extends Base implements ActivityTrackable {
     // )
     // membership = new Collection<OrganizationMembership>(this);
 
-    @OneToMany(
-        () => Activity,
-        (activity) => activity.document,
-    )
-    activities = new Collection<DocumentType>(this);
+    // @OneToMany(
+    //     () => Activity,
+    //     (activity) => activity.document,
+    // )
+    // activity = new Collection<Activity>(this);
 
     constructor(
         organizationSlug: string,

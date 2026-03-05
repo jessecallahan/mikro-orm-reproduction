@@ -1,11 +1,14 @@
 import {
-    Entity, Enum, Property,
+    Entity, Enum, Property, wrap,
 } from '@mikro-orm/postgresql';
 import {Base} from '../base';
 import {Organization} from "~/db/entities";
 import {ManyToOne, Ref} from "@mikro-orm/core";
+import type {ActivityTrackable} from "~/db/subscribers/activity-subscriber";
 
-@Entity()
+@Entity(
+    {discriminatorColumn: 'documentType',}
+)
 export class Activity extends Base {
     @Property()
     userEmail: string;
@@ -24,9 +27,8 @@ export class Activity extends Base {
     @Property()
     action: string;
 
-    // todo make generic (use ActivityTrackable)
-    @ManyToOne(() => Organization, { ref: true })
-    document: Ref<Organization>;
+    @ManyToOne()
+    document: Organization;
 
     @Property({
         type: 'jsonb',
@@ -39,7 +41,7 @@ export class Activity extends Base {
         userObject: JSON,
         resource: string,
         action: string,
-        entity: JSON,
+        entity: Organization,
     ) {
         super();
         this.userEmail = userEmail;
@@ -47,6 +49,7 @@ export class Activity extends Base {
         this.userObject = userObject;
         this.resource = resource;
         this.action = action;
-        this.entity = entity;
+        this.document = entity;
+        this.entity = wrap(entity).toJSON();
     }
 }

@@ -18,7 +18,7 @@ export const organizationRouter = createTRPCRouter({
             let excludedFields = ctx.hasInternalAccess ? [] : ['id', 'notes'];
             const records = await ctx.db.find(Organization, {}, {
                 exclude: excludedFields,
-                populate: ['activities']
+                // populate: ['activity']
             });
 
             return records?.map((r) => wrap(r).toObject());

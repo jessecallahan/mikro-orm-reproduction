@@ -3,9 +3,7 @@ import {Organization} from "~/db/entities";
 import {EventArgs, Property} from "@mikro-orm/postgresql";
 import type {Members} from "stytch/types/lib/b2b/organizations_members";
 import {Activity} from "~/db/entities/admin/activity";
-import {ChangeSetType} from "@mikro-orm/core";
 import {TRPCError} from "@trpc/server";
-
 
 export interface ActivityTrackable {
     id: number
@@ -25,11 +23,19 @@ export class ActivitySubscriber
         return [Organization];
     }
 
-    // modeled after: https://mikro-orm.io/docs/events#using-onflush-event
-    // todo if we want this to be onupdate we can use upsert, is that what we want
-    // finding the changeset by update essentially does the same thing but allows us to create
-    // a new record ... https://mikro-orm.io/docs/events#limitations-of-lifecycle-hooks
-    async onFlush(
+    async afterCreate(
+        args: EventArgs<ActivityTrackable>,
+    ): Promise<void> {
+        await this.createActivity(args);
+    }
+
+    async afterUpdate(
+        args: EventArgs<ActivityTrackable>,
+    ): Promise<void> {
+        await this.createActivity(args);
+    }
+
+    async afterUpsert(
         args: EventArgs<ActivityTrackable>,
     ): Promise<void> {
         await this.createActivity(args);
@@ -41,31 +47,30 @@ export class ActivitySubscriber
         const em = args.em;
         const loggerContext = em.getLoggerContext<LoggerContext>();
 
-        const changeSets = args.uow.getChangeSets();
-        const cs = changeSets.find(cs => cs.type === ChangeSetType.UPDATE);
-
         // console.log('params', em.filterParams);
         console.log('logger', loggerContext);
 
         // fail if no logger context
-        if (!loggerContext) {
+        if (!loggerContext || Object.keys(loggerContext).length === 0) {
             throw new TRPCError({
                 code: 'BAD_REQUEST',
                 message: 'No logger context', })
         }
-        if (cs) {
+        if (loggerContext.user) {
             const activity = new Activity(
                 loggerContext.user.email_address,
                 loggerContext.user.name,
                 loggerContext.user,
                 loggerContext.resource,
                 loggerContext.action,
-                cs.entity
+                args.entity
             );
 
-            cs.entity.activities.add(activity);
-            args.uow.computeChangeSet(activity);
-            args.uow.recomputeSingleChangeSet(cs.entity);
+            // Normally we would want to use create here for this use case
+            // however create() and flush() can't be used in lifecycle hooks
+            // https://mikro-orm.io/docs/events#limitations-of-lifecycle-hooks
+            await em.upsert(Activity, activity);
+
         }
 
     }
