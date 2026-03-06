@@ -120,12 +120,20 @@ const OrganizationSeedData = [
 
 export class OrganizationMembershipSeeder extends Seeder {
     async run(em: EntityManager): Promise<void> {
+        const fork = em.fork({
+            loggerContext: {
+                resource: 'emo.admin.organzation',
+                action: 'create',
+                user: null
+            }
+        });
+
         // upsert Organizations
-        await em.upsertMany(Organization, OrganizationSeedData, {
+        await fork.upsertMany(Organization, OrganizationSeedData, {
             onConflictFields: ['name'],
             onConflictAction: 'merge',
         });
-        await em.flush();
+        await fork.flush();
 
         // filter User seed data where User is part of Organizations
         // const usersInOrganizations = userSeedData(em).filter(
