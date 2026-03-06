@@ -1,6 +1,6 @@
-import { AuthFlowType, B2BProducts, StytchB2B } from '@stytch/nextjs/b2b';
+import { AuthFlowType, B2BProducts, StytchB2B, type StytchB2BUIConfig } from '@stytch/nextjs/b2b';
 
-const config = {
+const config: StytchB2BUIConfig = {
   authFlowType: AuthFlowType.Discovery,
   products: [B2BProducts.emailMagicLinks, B2BProducts.oauth],
   emailMagicLinksOptions: {

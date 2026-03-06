@@ -1,4 +1,4 @@
-export const allowedActionIcon = (action) => {
+export const allowedActionIcon = (action: string) => {
     switch (action) {
         case "read.external":
            return '👁️'

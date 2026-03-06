@@ -1,12 +1,13 @@
 'use client';
 import { api } from '~/trpc/react';
-import {OrganizationType} from "../../db/enums/organization-type";
+import {OrganizationType} from "~/db/enums/organization-type";
 import {Status} from "~/db/enums/status";
 import type {OrganizationUpdateSchema} from "~/validators/organization-schema";
 import {z} from "zod";
+import {Organization} from "~/db/entities";
 
 export const Orgs = () => {
-    const {data, isLoading} = api.organization.getAll.useQuery();
+    const {data, isLoading} = api.organization.getAll.useQuery<Organization[]>();
     const update = api.organization.update.useMutation({
         onSuccess: () => {
             // Invalidate queries to refresh data

@@ -13,19 +13,31 @@ import {Admin} from "~/app/_components/admin";
 import {filterAllPermissionsStartingWith} from "~/functions/filter-all-permissions-starting-with";
 import {Orgs} from "~/app/_components/orgs";
 
+// in application the key would be action
+// A Permission is [action, isAllowed]
+export type Permission = {
+    [key: string]: boolean;
+};
+
+// in application resource would be the first string type so (Resource | Permission)
+type Permissions = [string, Permission];
+export type PermissionsMapAsArray = Permissions[];
+
 export const SessionInfo = () => {
     const {session, isInitialized} = useStytchMemberSession();
     const {member} = useStytchMember();
     const {organization} = useStytchOrganization();
 
     const stytch = useStytchB2BClient();
-    const [permissions, setPermissions] = useState({});
+    const [permissions, setPermissions] = useState<PermissionsMapAsArray | null>(null);
 
     useEffect(() => {
-        stytch.rbac.allPermissions().then((perms) => setPermissions(perms));
+        stytch.rbac.allPermissions().then((perms) => {
+            return setPermissions(Object.entries(perms) as PermissionsMapAsArray);
+        })
     }, [stytch]);
 
-    console.log(Object.entries(permissions));
+    console.log(permissions);
     // console.log('sessionInfo', session);
     // console.log('member', member);
     // console.log('organization', organization);
@@ -44,10 +56,10 @@ export const SessionInfo = () => {
 
     return session ? (
         <div>
-            <p>Name: {member.name}</p>
-            <p>Email: {member.email_address}</p>
-            <p>Organization: {organization.organization_name}</p>
-            <p>Roles: {member.roles.map(r => r.role_id).join(', ')}</p>
+            <p>Name: {member?.name}</p>
+            <p>Email: {member?.email_address}</p>
+            <p>Organization: {organization?.organization_name}</p>
+            <p>Roles: {member?.roles.map(r => r.role_id).join(', ')}</p>
             <br/>
             <div className="border m-3 p-4 bg-gray-100 w-lg">{hasAdminAccess ?
                 !showAdminList ?
