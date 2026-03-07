@@ -11,7 +11,7 @@ const OrganizationSchema = z.object({
     id: z.number(),
     organizationSlug: z.string(),
     name: z.string(),
-    type: z.nativeEnum(OrganizationType),
+    type: z.enum(OrganizationType),
     effectiveDateRange: z.object({
         from: z.date(),
         to: z
@@ -20,7 +20,7 @@ const OrganizationSchema = z.object({
     }),
     notes: z.string()
             .optional(), // database def
-    status: z.nativeEnum(Status)
+    status: z.enum(Status)
 }) satisfies ZodTimestampless<Organization>;
 
 export const OrganizationUpdateSchema = OrganizationSchema;
