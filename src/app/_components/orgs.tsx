@@ -23,7 +23,7 @@ export const Orgs = () => {
             type: OrganizationType.HondaTrading,
             effectiveDateRange: {
                 from: new Date('9/12/2006'),
-                to: null,
+                to: undefined,
             },
             notes: 'Used for all users that have Honda Trading roles.  No supply-chain partner locations can be created under this organization.',
             status: Status.Active

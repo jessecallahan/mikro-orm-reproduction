@@ -2,25 +2,25 @@
 
 
 import {z, ZodType} from 'zod';
-import {OrganizationType} from "../db/enums/organization-type";
-import {Status} from "../db/enums/status";
 import {Organization} from "../db/entities";
+import {OrganizationType} from "../db/enums/organization-type";
+import {Status} from "~/db/enums/status";
 
 
 const OrganizationSchema = z.object({
     id: z.number(),
     organizationSlug: z.string(),
     name: z.string(),
-    type: z.string(), // todo should be z.enum() but ran into problem
+    type: z.nativeEnum(OrganizationType),
     effectiveDateRange: z.object({
         from: z.date(),
         to: z
             .date()
             .optional() // database def
-            .nullable() // ui input
     }),
-    notes: z.string().nullable(),
-    status: z.string() // todo should be z.enum() but ran into problem
+    notes: z.string()
+            .optional(), // database def
+    status: z.nativeEnum(Status)
 }) satisfies ZodTimestampless<Organization>;
 
 export const OrganizationUpdateSchema = OrganizationSchema;

@@ -5,7 +5,7 @@ import {Organization} from "~/db/entities";
 import {OrganizationUpdateSchema} from "~/validators/organization-schema";
 
 export const organizationRouter = createTRPCRouter({
-    get: resourceProtectedProcedure()
+    get: resourceProtectedProcedure('emo.admin.organizations', 'read.external')
         .input(z.number())
         .query(async ({ctx, input: id}) => {
             const record = await ctx.db.findOneOrFail(Organization, id);
@@ -15,9 +15,8 @@ export const organizationRouter = createTRPCRouter({
     getAll: resourceProtectedProcedure('emo.admin.organizations', 'read.external')
         .use(hasInternalAccess('emo.admin.organizations', 'read.internal'))
         .query(async ({ctx}) => {
-            let excludedFields = ctx.hasInternalAccess ? [] : ['id', 'notes'];
             const records = await ctx.db.find(Organization, {}, {
-                exclude: excludedFields,
+                exclude: ctx.hasInternalAccess ? [] : ['id', 'notes'],
                 // populate: ['activity']
             });
 
