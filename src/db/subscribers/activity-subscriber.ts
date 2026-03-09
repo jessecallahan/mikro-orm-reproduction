@@ -1,9 +1,10 @@
 import type {EntityName, EventSubscriber} from "@mikro-orm/core";
 import {Organization} from "~/db/entities";
-import {EventArgs, Property} from "@mikro-orm/postgresql";
-import type {Members} from "stytch/types/lib/b2b/organizations_members";
+
 import {Activity} from "~/db/entities/admin/activity";
 import {TRPCError} from "@trpc/server";
+import type { Member } from "@stytch/nextjs/b2b";
+import type {EventArgs} from "@mikro-orm/postgresql";
 
 export interface ActivityTrackable {
     id: number
@@ -12,7 +13,7 @@ export interface ActivityTrackable {
 export interface LoggerContext {
     resource: string;
     action: string;
-    user: Members;
+    user: Member;
 }
 
 export class ActivitySubscriber
