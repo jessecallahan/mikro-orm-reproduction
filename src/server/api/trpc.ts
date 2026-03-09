@@ -14,10 +14,11 @@ import stytch, {type MemberRole} from "stytch";
 import {cookies} from "next/headers";
 import type {Dictionary, FilterQuery} from "@mikro-orm/core";
 import {Organization} from "~/db/entities";
+import {env} from "~/env";
 
 const client = new stytch.B2BClient({
-    project_id: process.env.PROJECT_ID ?? '',
-    secret: process.env.SECRET ?? '',
+    project_id: env.PROJECT_ID,
+    secret: env.SECRET,
 });
 
 const userFilter = async (args: Dictionary, type: 'read' | 'update' | 'create') => {
