@@ -64,7 +64,7 @@ export class ActivitySubscriber
                 loggerContext.user,
                 loggerContext.resource,
                 loggerContext.action,
-                args.entity
+                args.entity as Organization
             );
 
             // Normally we would want to use create here for this use case

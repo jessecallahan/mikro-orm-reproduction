@@ -1,7 +1,7 @@
 import {defineConfig} from '@mikro-orm/postgresql';
-import {Activity, Organization} from "../db/entities";
 import {SeedManager} from "@mikro-orm/seeder";
-import {ActivitySubscriber} from "~/db/subscribers/activity-subscriber";
+import {Activity, Organization } from './entities';
+import { ActivitySubscriber } from './subscribers';
 
 
 export default defineConfig({

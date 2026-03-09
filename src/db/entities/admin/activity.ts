@@ -1,9 +1,10 @@
-import {
-    Entity, Enum, Property, wrap,
-} from '@mikro-orm/postgresql';
-import {Base} from '../base';
-import {Organization} from "~/db/entities";
 import {ManyToOne} from "@mikro-orm/core";
+import {
+    Entity, Property,
+} from '@mikro-orm/postgresql';
+import type {Member} from "@stytch/nextjs/b2b";
+import {Organization} from "~/db/entities";
+import {Base} from '../base';
 
 @Entity()
 export class Activity extends Base {
@@ -16,7 +17,7 @@ export class Activity extends Base {
     @Property({
         type: 'jsonb',
     })
-    userObject: JSON;
+    userObject: Member;
 
     @Property()
     resource: string;
@@ -30,12 +31,12 @@ export class Activity extends Base {
     @Property({
         type: 'jsonb',
     })
-    entity: JSON;
+    entity: Organization;
 
     constructor(
         userEmail: string,
         userName: string,
-        userObject: JSON,
+        userObject: Member,
         resource: string,
         action: string,
         entity: Organization,
@@ -47,6 +48,6 @@ export class Activity extends Base {
         this.resource = resource;
         this.action = action;
         this.document = entity;
-        this.entity = wrap(entity).toJSON();
+        this.entity = entity;
     }
 }
