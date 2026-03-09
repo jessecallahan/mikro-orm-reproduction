@@ -14,7 +14,7 @@ import stytch, {type MemberRole} from "stytch";
 import {cookies} from "next/headers";
 import type {Dictionary, FilterQuery} from "@mikro-orm/core";
 import {Organization} from "~/db/entities";
-import {env} from "~/env";
+import {env} from "~/env.mjs";
 
 const client = new stytch.B2BClient({
     project_id: env.PROJECT_ID,
