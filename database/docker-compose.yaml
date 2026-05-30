@@ -6,8 +6,8 @@ services:
     image: postgres:17
     restart: always
     environment:
-      POSTGRES_USER: stytch
-      POSTGRES_PASSWORD: admin123
+      POSTGRES_USER: reproduction
+      POSTGRES_PASSWORD: repro
     volumes:
       - ./init-scripts:/docker-entrypoint-initdb.d
     ports:
